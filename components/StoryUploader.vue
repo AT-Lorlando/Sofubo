@@ -8,9 +8,9 @@
 <script setup>
 import { ref } from "vue";
 import { Camera, CameraResultType } from "@capacitor/camera";
+import { getApiKey } from "~/utils/storage";
 const { $axios } = useNuxtApp();
 
-const api_key = "";
 const photo = ref(null);
 
 async function capturePhoto() {
@@ -33,7 +33,7 @@ async function uploadPhoto() {
       },
       {
         headers: {
-          "x-api-key": api_key,
+          "x-api-key": await getApiKey(),
         },
       }
     );
