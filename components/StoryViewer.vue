@@ -96,7 +96,10 @@ function showNext() {
   }
 }
 
-onMounted(fetchStories);
+onMounted(() => {
+  fetchStories();
+  setInterval(fetchStories, 5 * 60 * 1000);
+});
 </script>
 
 <style>
