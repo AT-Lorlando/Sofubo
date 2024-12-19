@@ -69,7 +69,7 @@ async function fetchStories() {
       filename.value = stories.value[0].filename;
     }
   } catch (error) {
-    alert("Erreur de chargement des stories", error);
+    alert("Erreur de chargement des stories" + error);
   }
 }
 
