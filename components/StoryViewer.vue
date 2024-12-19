@@ -17,9 +17,16 @@
       <p v-else>No stories available</p>
     </div>
     <div class="controls">
-      <button @click="showPrevious">Précedente</button>
+      <button
+        @click="showPrevious"
+        :disabled="currentIndex == stories.length - 1"
+      >
+        Précédente
+      </button>
       <p>{{ date }}</p>
-      <button @click="showPrevious">Suivante</button>
+      <button @click="showNext" :disabled="!(currentIndex > 0)">
+        Suivante
+      </button>
     </div>
   </div>
 </template>
@@ -78,6 +85,14 @@ function showPrevious() {
     currentIndex.value = 0;
   } else {
     currentIndex.value++;
+  }
+}
+
+function showNext() {
+  if (currentIndex.value === 0) {
+    currentIndex.value = stories.value.length - 1;
+  } else {
+    currentIndex.value--;
   }
 }
 
@@ -153,5 +168,11 @@ img.story-background {
 .controls p {
   color: white;
   font-size: 1.5rem;
+}
+
+.controls button:disabled {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 </style>
