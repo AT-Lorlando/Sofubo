@@ -1,11 +1,26 @@
 <template>
   <div>
-    <transition name="slide-down">
-      <div class="container" v-if="showHeader">
-        <nuxt-link to="/" class="home-button">🏠</nuxt-link>
-        <nuxt-link to="/settings" class="settings-button">⚙️</nuxt-link>
-      </div>
-    </transition>
+    <!-- <transition name="slide-down"> -->
+    <!-- <div class="container" v-if="showHeader"> -->
+    <div class="container">
+      <nuxt-link to="/" class="home-button">
+        <icon-home
+          width="24"
+          height="24"
+          strokeColor="white"
+          fillColor="white"
+        />
+      </nuxt-link>
+      <nuxt-link to="/settings" class="settings-button">
+        <icon-settings
+          width="24"
+          height="24"
+          strokeColor="white"
+          fillColor="white"
+        />
+      </nuxt-link>
+    </div>
+    <!-- </transition> -->
     <slot />
   </div>
 </template>
