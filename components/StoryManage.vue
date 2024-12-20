@@ -44,6 +44,6 @@ async function deleteAllPhotos() {
 
 <style scoped>
 button {
-  margin-top: 10px;
+  color: red;
 }
 </style>
