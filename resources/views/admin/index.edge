@@ -1,0 +1,20 @@
+@component('components/admin_layout')
+<form method="POST" action="/admin/photos" enctype="multipart/form-data">
+  {{ csrfField() }}
+  <input type="file" name="photo" accept="image/*" required>
+  <button type="submit">Envoyer la photo</button>
+</form>
+
+<h2>Sur la tablette</h2>
+@if(photo)
+<img src="{{ photo.url }}" alt="">
+<p class="muted">{{ photo.date }}</p>
+@else
+<p class="muted">Pas encore de photo</p>
+@end
+
+<form method="POST" action="/admin/logout">
+  {{ csrfField() }}
+  <button type="submit" class="link">Se déconnecter</button>
+</form>
+@end

@@ -1,0 +1,7 @@
+@component('components/admin_layout')
+<form method="POST" action="/admin/login">
+  {{ csrfField() }}
+  <input type="password" name="password" placeholder="Mot de passe" autofocus required>
+  <button type="submit">Se connecter</button>
+</form>
+@end
