@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sofubo · admin</title>
+<style>
+body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#f6f4f1;color:#222;max-width:520px;margin:0 auto}
+h1{font-size:1.4em}
+form{margin:16px 0}
+input,button{font-size:1em;padding:12px;width:100%;box-sizing:border-box;margin:6px 0}
+button{background:#222;color:#fff;border:0;border-radius:8px}
+.link{background:none;color:#555;text-decoration:underline;padding:0;width:auto}
+.msg{padding:10px;border-radius:8px}
+.error{background:#fbe3e1}
+.success{background:#e1f5e4}
+img{max-width:100%;border-radius:8px}
+.muted{color:#777}
+</style>
+</head>
+<body>
+<h1>Sofubo</h1>
+@if(flashMessages.has('error'))
+<p class="msg error">{{ flashMessages.get('error') }}</p>
+@end
+@if(flashMessages.has('success'))
+<p class="msg success">{{ flashMessages.get('success') }}</p>
+@end
+{{{ await $slots.main() }}}
+</body>
+</html>
