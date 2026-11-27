@@ -40,6 +40,10 @@ Variables à déclarer dans Koya (aucune n'est dans le repo) :
 | `COOKIE_SECURE` | `false` si l'app est servie en HTTP simple (VPN) ; `true` par défaut en prod |
 | `PHOTOS_DIR` | optionnel, `storage/photos` par défaut |
 
+**nginx** : les photos de téléphone dépassent largement la limite par défaut (1 Mo).
+Ajouter `client_max_body_size 25m;` sur la route du service, sinon l'envoi échoue
+avant d'atteindre l'app.
+
 Logs : JSON sur stdout (`app: "sofubo"`, `service: "backend"`), selon la convention du homelab.
 
 **À sauvegarder** : `storage/photos/` (ou `PHOTOS_DIR`). Le dossier est hors git et
@@ -49,7 +53,11 @@ ni le déploiement ni le build n'y touchent.
 
 - **Start URL** : `http://<hôte>/?token=<DISPLAY_TOKEN>`. Changer le token dans Koya
   impose de mettre à jour cette URL.
-- Conseillé : écran toujours allumé (*Keep Screen On*), rechargement automatique sur
-  erreur réseau (*Reload on Network Reconnect* / *Auto Reload on Idle*), pas d'économiseur d'écran.
+- **Obligatoire** : un rechargement périodique de la Start URL (*Auto Reload on Idle*, par
+  exemple toutes les 10 minutes). Les pages servies par l'app se rechargent seules (la photo
+  toutes les 5 minutes, les erreurs au bout de 60 s), mais une page d'erreur nginx (502
+  pendant un redémarrage) ne se recharge pas d'elle-même.
+- Conseillé : écran toujours allumé (*Keep Screen On*), *Reload on Network Reconnect*,
+  pas d'économiseur d'écran.
 - Un vieil Android peut refuser les certificats HTTPS récents : à travers le VPN,
   du HTTP simple (avec `COOKIE_SECURE=false`) convient.

@@ -5,6 +5,9 @@ import { safeEqual } from '#services/secrets'
 
 const COOKIE = 'display'
 
+/** The kiosk must never get stuck on an error page: it retries by itself. */
+export const RETRY_SECONDS = 60
+
 /**
  * Tablet access: the start URL carries `?token=<DISPLAY_TOKEN>`; a valid token
  * is also kept in an encrypted cookie, so later requests work without it.
@@ -28,6 +31,10 @@ export default class DisplayTokenMiddleware {
       return next()
     }
 
-    response.status(401).header('Content-Type', 'text/plain; charset=utf-8').send('Unauthorized')
+    response
+      .status(401)
+      .header('Content-Type', 'text/plain; charset=utf-8')
+      .header('Refresh', String(RETRY_SECONDS))
+      .send('Unauthorized')
   }
 }

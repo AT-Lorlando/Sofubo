@@ -9,7 +9,8 @@ const MAX_SIDE = 1280
  * without any metadata (no GPS). Rejects when the input cannot be decoded.
  */
 export async function processImage(input: Buffer): Promise<Buffer> {
-  return sharp(input)
+  // failOn 'error': phones sometimes write JPEGs that only trigger decoder warnings
+  return sharp(input, { failOn: 'error' })
     .rotate()
     .resize(MAX_SIDE, MAX_SIDE, { fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality: 80, mozjpeg: true })

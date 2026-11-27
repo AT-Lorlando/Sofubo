@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { defineConfig } from '@adonisjs/core/bodyparser'
 
 const bodyParserConfig = defineConfig({
@@ -40,6 +41,8 @@ const bodyParserConfig = defineConfig({
      * operating system
      */
     autoProcess: true,
+    // Recognisable name: the controller deletes the original once processed
+    tmpFileName: () => `sofubo-upload-${randomUUID()}`,
     convertEmptyStringsToNull: true,
     processManually: [],
 
@@ -47,7 +50,8 @@ const bodyParserConfig = defineConfig({
      * Maximum limit of data to parse including all files
      * and fields
      */
-    limit: '20mb',
+    // Above the 20 MB per-file limit, so an oversize photo gets a friendly message
+    limit: '25mb',
     types: ['multipart/form-data'],
   },
 })

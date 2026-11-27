@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { RETRY_SECONDS } from '#middleware/display_token_middleware'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -20,6 +21,10 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    // Tablet pages: retry by themselves instead of staying on the error page
+    if (!ctx.request.url().startsWith('/admin')) {
+      ctx.response.header('Refresh', String(RETRY_SECONDS))
+    }
     return super.handle(error, ctx)
   }
 

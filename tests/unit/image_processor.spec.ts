@@ -38,6 +38,14 @@ test.group('processImage', () => {
     assert.equal(meta.height, 400)
   })
 
+  test('accepts a JPEG with a harmless decoder warning (extraneous bytes)', async ({ assert }) => {
+    const full = await jpeg(400, 300)
+    // Garbage between SOI and the next marker: "N extraneous bytes before marker"
+    const noisy = Buffer.concat([full.subarray(0, 2), Buffer.alloc(4), full.subarray(2)])
+    const meta = await sharp(await processImage(noisy)).metadata()
+    assert.equal(meta.width, 400)
+  })
+
   test('rejects data that is not an image', async ({ assert }) => {
     await assert.rejects(() => processImage(Buffer.from('not an image')))
   })

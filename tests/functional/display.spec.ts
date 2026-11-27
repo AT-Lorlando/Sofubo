@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
-import { rm } from 'node:fs/promises'
+import { mkdir, rm, writeFile } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import sharp from 'sharp'
 import { photoStore } from '#services/photo_store'
 import env from '#start/env'
@@ -18,6 +19,21 @@ test.group('Display page', (group) => {
     const response = await client.get('/')
     response.assertStatus(401)
     response.assertTextIncludes('Unauthorized')
+  })
+
+  test('asks the tablet to retry after a refusal', async ({ client }) => {
+    const response = await client.get('/?token=wrong')
+    response.assertStatus(401)
+    response.assertHeader('refresh', '60')
+  })
+
+  test('asks the tablet to retry after a server error', async ({ client }) => {
+    const dir = env.get('PHOTOS_DIR')!
+    await mkdir(dirname(dir), { recursive: true })
+    await writeFile(dir, 'not a folder') // readdir → ENOTDIR → 500
+    const response = await client.get('/?token=test-token')
+    response.assertStatus(500)
+    response.assertHeader('refresh', '60')
   })
 
   test('refuses a wrong token', async ({ client }) => {

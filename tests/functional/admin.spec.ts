@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import type { ApiResponse } from '@japa/api-client'
-import { rm } from 'node:fs/promises'
+import { readdir, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import sharp from 'sharp'
 import { photoStore } from '#services/photo_store'
 import env from '#start/env'
@@ -87,6 +88,42 @@ test.group('Admin', (group) => {
     assert.exists(latest)
     const meta = await sharp(photoStore.path(latest!.name)!).metadata()
     assert.equal(meta.width, 1280)
+  })
+
+  test('deletes the uploaded original from the temp folder', async ({ client, assert }) => {
+    const leftovers = async () => {
+      const names = await readdir(tmpdir())
+      return names.filter((name) => name.startsWith('sofubo-upload-'))
+    }
+    const before = await leftovers()
+
+    await client
+      .post('/admin/photos')
+      .withCsrfToken()
+      .withSession({ admin: true })
+      .file('photo', await jpeg(300, 200), { filename: 'a.jpg' })
+      .redirects(0)
+    await client
+      .post('/admin/photos')
+      .withCsrfToken()
+      .withSession({ admin: true })
+      .file('photo', Buffer.from('not an image'), { filename: 'b.jpg' })
+      .redirects(0)
+
+    assert.deepEqual(await leftovers(), before)
+  })
+
+  test('explains when the photo is over 20 MB', async ({ client, assert }) => {
+    const response = await client
+      .post('/admin/photos')
+      .withCsrfToken()
+      .withSession({ admin: true })
+      .file('photo', Buffer.alloc(21 * 1024 * 1024), { filename: 'big.jpg' })
+      .redirects(0)
+
+    assertRedirect(response, '/admin')
+    response.assertFlashMessage('error', 'Photo trop lourde (20 Mo maximum)')
+    assert.isNull(await photoStore.latest())
   })
 
   test('rejects a file that is not an image', async ({ client, assert }) => {

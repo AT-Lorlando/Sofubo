@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { readFile } from 'node:fs/promises'
+import { readFile, rm } from 'node:fs/promises'
 import env from '#start/env'
 import { safeEqual } from '#services/secrets'
 import { processImage } from '#services/image_processor'
@@ -36,31 +36,35 @@ export default class AdminController {
 
   async upload({ request, session, response, logger }: HttpContext) {
     const file = request.file('photo', { size: '20mb' })
-
-    if (!file || !file.tmpPath) {
-      session.flash(
-        'error',
-        file?.hasErrors ? 'Photo trop lourde (20 Mo maximum)' : 'Aucune photo reçue'
-      )
-      return response.redirect('/admin')
-    }
-
-    let jpeg: Buffer
     try {
-      jpeg = await processImage(await readFile(file.tmpPath))
-    } catch (err) {
-      logger.warn({ event: 'photo.rejected', err, extname: file.extname }, 'photo rejected')
-      session.flash('error', 'Image illisible')
-      return response.redirect('/admin')
-    }
+      if (!file || !file.tmpPath || file.hasErrors) {
+        session.flash(
+          'error',
+          file?.hasErrors ? 'Photo trop lourde (20 Mo maximum)' : 'Aucune photo reçue'
+        )
+        return response.redirect('/admin')
+      }
 
-    const photo = await photoStore.save(jpeg)
-    logger.info(
-      { event: 'photo.uploaded', photo: photo.name, bytes: jpeg.length },
-      'photo uploaded'
-    )
-    session.flash('success', 'Photo envoyée')
-    return response.redirect('/admin')
+      let jpeg: Buffer
+      try {
+        jpeg = await processImage(await readFile(file.tmpPath))
+      } catch (err) {
+        logger.warn({ event: 'photo.rejected', err, extname: file.extname }, 'photo rejected')
+        session.flash('error', 'Image illisible')
+        return response.redirect('/admin')
+      }
+
+      const photo = await photoStore.save(jpeg)
+      logger.info(
+        { event: 'photo.uploaded', photo: photo.name, bytes: jpeg.length },
+        'photo uploaded'
+      )
+      session.flash('success', 'Photo envoyée')
+      return response.redirect('/admin')
+    } finally {
+      // The original keeps its EXIF (GPS included): never leave it in the temp folder
+      if (file?.tmpPath) await rm(file.tmpPath, { force: true })
+    }
   }
 
   async logout({ session, response }: HttpContext) {
