@@ -5,7 +5,14 @@ export default await Env.create(new URL('../', import.meta.url), {
   PORT: Env.schema.number(),
   APP_KEY: Env.schema.string(),
   HOST: Env.schema.string({ format: 'host' }),
-  LOG_LEVEL: Env.schema.enum.optional(['trace', 'debug', 'info', 'warn', 'error', 'fatal'] as const),
+  LOG_LEVEL: Env.schema.enum.optional([
+    'trace',
+    'debug',
+    'info',
+    'warn',
+    'error',
+    'fatal',
+  ] as const),
 
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
   /** Send cookies only over HTTPS (default: true in production). */
